@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>BeingFollPirates | Архив APK игр</title>
+    <!-- Font Awesome 6 (free) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts: Poppins + Orbitron для акцентов -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700&family=Orbitron:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0000; /* глубокий черно-красный фон */
+            font-family: 'Inter', sans-serif;
+            color: #f0e6e6;
+            line-height: 1.5;
+        }
+
+        /* красная тематика */
+        :root {
+            --red-primary: #c41e3a;
+            --red-dark: #8b0000;
+            --red-glow: #e63946;
+            --black-bg: #1a0505;
+            --card-bg: #2c0f0f;
+            --border-red: #b91c2e;
+        }
+
+        /* контейнер */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        /* шапка */
+        .header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--red-primary);
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+        .logo h1 {
+            font-family: 'Orbitron', monospace;
+            font-weight: 800;
+            font-size: 2rem;
+            background: linear-gradient(135deg, #ff4d4d, #b91c2e);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 1px;
+        }
+        .logo p {
+            font-size: 0.8rem;
+            color: #cf9f9f;
+            letter-spacing: 1px;
+        }
+        .nav-links {
+            display: flex;
+            gap: 1.8rem;
+            flex-wrap: wrap;
+        }
+        .nav-links a {
+            color: #f2cfcf;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.2s;
+            font-size: 1rem;
+            border-bottom: 2px solid transparent;
+            padding-bottom: 4px;
+        }
+        .nav-links a:hover, .nav-links a.active {
+            color: #ff7b7b;
+            border-bottom-color: var(--red-primary);
+        }
+
+        /* сетка страниц (вкладки) */
+        .page {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        .active-page {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+
+        /* карточки игр и постов */
+        .game-grid, .posts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.8rem;
+            margin-top: 1.5rem;
+        }
+        .game-card, .post-card {
+            background: var(--card-bg);
+            border-left: 5px solid var(--red-primary);
+            border-radius: 1rem;
+            padding: 1.2rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+        }
+        .game-card:hover, .post-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(180, 20, 20, 0.3);
+        }
+        .game-title, .post-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #ffb3b3;
+        }
+        .game-genre {
+            display: inline-block;
+            background: #2e0a0a;
+            padding: 0.2rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #ff8a8a;
+            margin: 0.6rem 0;
+        }
+        .game-desc {
+            font-size: 0.85rem;
+            color: #d9b8b8;
+            margin: 0.8rem 0;
+        }
+        .btn-download {
+            background: var(--red-primary);
+            border: none;
+            padding: 0.5rem 1.2rem;
+            border-radius: 2rem;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-download:hover {
+            background: #a51c2f;
+            transform: scale(0.97);
+        }
+        /* фильтры жанров */
+        .genre-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin: 1.5rem 0 1rem;
+            border-bottom: 1px solid #3f1a1a;
+            padding-bottom: 1rem;
+        }
+        .genre-btn {
+            background: #2f1212;
+            border: none;
+            padding: 0.4rem 1.2rem;
+            border-radius: 30px;
+            color: #f0c0c0;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        .genre-btn.active, .genre-btn:hover {
+            background: var(--red-primary);
+            color: white;
+            box-shadow: 0 0 6px #e63946;
+        }
+
+        /* профиль */
+        .profile-card {
+            background: var(--card-bg);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            max-width: 600px;
+            margin-top: 1rem;
+        }
+        .avatar {
+            font-size: 4rem;
+            color: #bc4e4e;
+        }
+        .stat-badge {
+            background: #210a0a;
+            padding: 0.2rem 1rem;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        /* форма добавления поста/игры */
+        .upload-area {
+            background: #1e0a0a;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin: 2rem 0 1rem;
+            border: 1px dashed var(--red-primary);
+        }
+        input, textarea, select {
+            background: #2d1313;
+            border: 1px solid #792a2a;
+            padding: 0.6rem;
+            border-radius: 12px;
+            color: white;
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+        button {
+            background: var(--red-primary);
+            border: none;
+            padding: 0.6rem 1.4rem;
+            border-radius: 2rem;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* скачанные игры */
+        .downloaded-list {
+            list-style: none;
+            margin-top: 1rem;
+        }
+        .downloaded-list li {
+            background: #2f0f0f;
+            margin: 0.7rem 0;
+            padding: 0.8rem;
+            border-radius: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        footer {
+            margin-top: 4rem;
+            text-align: center;
+            border-top: 1px solid #4d2020;
+            padding-top: 2rem;
+            color: #a35e5e;
+        }
+        @media (max-width: 700px) {
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .container {
+                padding: 1rem;
+            }
+        }
+        .warning-note {
+            font-size: 0.7rem;
+            color: #b67373;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="logo">
+            <h1><i class="fas fa-skull-crossbones"></i> BeingFollPirates</h1>
+            <p>архив APK | торренты духа свободы</p>
+        </div>
+        <div class="nav-links">
+            <a href="#" data-page="profile"><i class="fas fa-user"></i> Мой профиль</a>
+            <a href="#" data-page="posts"><i class="fas fa-newspaper"></i> Посты пользователей</a>
+            <a href="#" data-page="games" class="active"><i class="fas fa-gamepad"></i> ИГРЫ</a>
+            <a href="#" data-page="downloaded"><i class="fas fa-download"></i> Скачанные игры</a>
+        </div>
+    </div>
+
+    <!-- СТРАНИЦА: Мой профиль -->
+    <div id="profilePage" class="page">
+        <h2><i class="fas fa-user-astronaut"></i> Профиль пирата</h2>
+        <div class="profile-card">
+            <div class="avatar"><i class="fas fa-user-secret"></i></div>
+            <h3>Captain_Redbeard</h3>
+            <p>Пират 5-го уровня | На борту с 2024</p>
+            <p><span class="stat-badge"><i class="fas fa-gamepad"></i> Выложено игр: <span id="userGamesCount">0</span></span>
+            <span class="stat-badge"><i class="fas fa-comment"></i> Постов: <span id="userPostsCount">0</span></span></p>
+            <p><i class="fas fa-trophy"></i> Репутация: 1777 ⚓</p>
+            <hr style="border-color:#6b2a2a; margin: 1rem 0">
+            <h4><i class="fas fa-upload"></i> Загрузить новую игру (APK)</h4>
+            <div class="upload-area">
+                <input type="text" id="gameName" placeholder="Название игры">
+                <select id="gameGenreSelect">
+                    <option value="Экшен">🔥 Экшен</option>
+                    <option value="RPG">🧙 RPG</option>
+                    <option value="Стратегии">⚔️ Стратегии</option>
+                    <option value="Гонки">🏁 Гонки</option>
+                    <option value="Аркады">🕹️ Аркады</option>
+                    <option value="Инди">🎨 Инди</option>
+                </select>
+                <textarea id="gameDesc" rows="2" placeholder="Краткое описание, фишки..."></textarea>
+                <input type="text" id="apkLink" placeholder="Ссылка на APK (файл или облако)">
+                <button id="publishGameBtn"><i class="fas fa-skull"></i> Опубликовать игру</button>
+                <div class="warning-note">* APK не загружается на сервер, публикуется ссылка (демонстрационный каталог)</div>
+            </div>
+            <h4><i class="fas fa-feather-alt"></i> Создать пост (новость/обзор)</h4>
+            <div class="upload-area">
+                <input type="text" id="postTitle" placeholder="Заголовок поста">
+                <textarea id="postContent" rows="2" placeholder="Текст поста, впечатления от игры..."></textarea>
+                <button id="publishPostBtn"><i class="fas fa-anchor"></i> Опубликовать пост</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- СТРАНИЦА: Посты пользователей -->
+    <div id="postsPage" class="page">
+        <h2><i class="fas fa-newspaper"></i> Лента пиратских хроник</h2>
+        <div class="posts-grid" id="postsContainer">
+            <!-- посты динамически -->
+            <div class="post-card" style="text-align:center; color:#a55">Загрузка...</div>
+        </div>
+    </div>
+
+    <!-- СТРАНИЦА: ИГРЫ (с разделами по жанрам) -->
+    <div id="gamesPage" class="page active-page">
+        <h2><i class="fas fa-dice-d6"></i> Библиотека APK — Выбери жанр</h2>
+        <div class="genre-filters" id="genreFilterContainer">
+            <!-- динамические кнопки жанров -->
+        </div>
+        <div id="gamesListContainer" class="game-grid">
+            <!-- игры -->
+        </div>
+        <div class="upload-area" style="margin-top: 2rem;">
+            <h4>🔥 Хочешь пополнить архив? Загрузи игру в своем профиле!</h4>
+            <p style="font-size:0.8rem;">Перейди в раздел "Мой профиль" и добавь APK со ссылкой.</p>
+        </div>
+    </div>
+
+    <!-- СТРАНИЦА: Скачанные игры -->
+    <div id="downloadedPage" class="page">
+        <h2><i class="fas fa-database"></i> Мои скачанные сокровища</h2>
+        <ul class="downloaded-list" id="downloadedList">
+            <li style="justify-content:center;">Пока нет загруженных игр. Нажми "Скачать APK" в карточке игры!</li>
+        </ul>
+    </div>
+    <footer>
+        <i class="fas fa-skull"></i> BeingFollPirates — место, где игры обретают вторую жизнь. APK распространяются в ознакомительных целях.
+    </footer>
+</div>
+
+<script>
+    // ---------- МОДЕЛЬ ДАННЫХ (localStorage) ----------
+    let games = [];        // { id, name, genre, description, apkUrl, author, date, downloadsCount }
+    let posts = [];        // { id, title, content, author, date }
+    let downloadedGames = []; // массив id игр (которые пользователь "скачал")
+
+    // Загрузка/сохранение
+    function loadData() {
+        const storedGames = localStorage.getItem('bfp_games');
+        if(storedGames) games = JSON.parse(storedGames);
+        else {
+            // демо-игры
+            games = [
+                { id: 'g1', name: 'Shadow Blades: Revenge', genre: 'Экшен', description: 'Динамичный слэшер с пиксельной графикой и кровавыми эффектами.', apkUrl: 'https://apk-demo.com/shadowblades.apk', author: 'KrakenDev', date: '2025-02-10', downloadsCount: 45 },
+                { id: 'g2', name: 'Mystic Realms', genre: 'RPG', description: 'Открытый мир, магия и драконы. Более 100 часов геймплея.', apkUrl: 'https://apk-demo.com/mystic.apk', author: 'OldSchoolRPG', date: '2025-01-18', downloadsCount: 112 },
+                { id: 'g3', name: 'Galaxy Conquest', genre: 'Стратегии', description: 'Космическая стратегия в реальном времени. Строй флот.', apkUrl: 'https://apk-demo.com/galaxy.apk', author: 'SpacePirate', date: '2025-02-01', downloadsCount: 28 },
+                { id: 'g4', name: 'Drift Mania', genre: 'Гонки', description: 'Уличные гонки, тюнинг, полиция. Атмосфера 2000х.', apkUrl: 'https://apk-demo.com/drift.apk', author: 'NitroTeam', date: '2025-01-25', downloadsCount: 67 },
+                { id: 'g5', name: 'Pixel Dungeon Rush', genre: 'Аркады', description: 'Рогалик с пикселями, быстрые забеги.', apkUrl: 'https://apk-demo.com/pixelrush.apk', author: 'RetroFool', date: '2025-02-12', downloadsCount: 33 }
+            ];
+            saveGames();
+        }
+        const storedPosts = localStorage.getItem('bfp_posts');
+        if(storedPosts) posts = JSON.parse(storedPosts);
+        else {
+            posts = [
+                { id: 'p1', title: 'Нашли сокровище: Shadow Blades работает на Android 14!', content: 'Друзья, протестировали, всё стабильно, apk чистый.', author: 'Captain_Redbeard', date: '2025-02-14' },
+                { id: 'p2', title: 'Обзор Mystic Realms - шедевр', content: 'Лучшая RPG года на мобилках, рекомендую скачать через BeingFoll!', author: 'OldGamer', date: '2025-02-10' }
+            ];
+            savePosts();
+        }
+        const storedDownloaded = localStorage.getItem('bfp_downloaded');
+        if(storedDownloaded) downloadedGames = JSON.parse(storedDownloaded);
+        else downloadedGames = [];
+
+        updateUserStats();
+    }
+
+    function saveGames() { localStorage.setItem('bfp_games', JSON.stringify(games)); }
+    function savePosts() { localStorage.setItem('bfp_posts', JSON.stringify(posts)); }
+    function saveDownloaded() { localStorage.setItem('bfp_downloaded', JSON.stringify(downloadedGames)); }
+
+    // обновление счетчиков в профиле (сколько игр/постов от текущего пользователя Captain_Redbeard)
+    function updateUserStats() {
+        const currentUser = "Captain_Redbeard";
+        const userGames = games.filter(g => g.author === currentUser).length;
+        const userPosts = posts.filter(p => p.author === currentUser).length;
+        const userGamesSpan = document.getElementById('userGamesCount');
+        const userPostsSpan = document.getElementById('userPostsCount');
+        if(userGamesSpan) userGamesSpan.innerText = userGames;
+        if(userPostsSpan) userPostsSpan.innerText = userPosts;
+    }
+
+    // Отображение постов
+    function renderPosts() {
+        const container = document.getElementById('postsContainer');
+        if(!container) return;
+        if(posts.length === 0) {
+            container.innerHTML = `<div class="post-card">Пока нет постов, будь первым! 🔥</div>`;
+            return;
+        }
+        container.innerHTML = posts.map(post => `
+            <div class="post-card">
+                <div class="post-title"><i class="fas fa-quote-left"></i> ${escapeHtml(post.title)}</div>
+                <div style="font-size:0.75rem; color:#c98686;">👤 ${escapeHtml(post.author)} | ${post.date}</div>
+                <p style="margin-top: 0.7rem;">${escapeHtml(post.content)}</p>
+                <div><i class="fas fa-comment-dots"></i> обсуждение в комментариях (0)</div>
+            </div>
+        `).join('');
+    }
+
+    // Генерация жанров из уникальных + рендер игр по фильтру
+    let currentGenreFilter = "Все";
+    function renderGenreButtons() {
+        const genresSet = new Set(games.map(g => g.genre));
+        const genreList = ["Все", ...Array.from(genresSet).sort()];
+        const container = document.getElementById('genreFilterContainer');
+        if(!container) return;
+        container.innerHTML = genreList.map(genre => `<button class="genre-btn ${currentGenreFilter === genre ? 'active' : ''}" data-genre="${genre}">${genre}</button>`).join('');
+        // добавить события
+        document.querySelectorAll('.genre-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                currentGenreFilter = btn.getAttribute('data-genre');
+                renderGamesByGenre();
+                renderGenreButtons(); // обновить active
+            });
+        });
+    }
+
+    function renderGamesByGenre() {
+        const container = document.getElementById('gamesListContainer');
+        if(!container) return;
+        let filtered = currentGenreFilter === "Все" ? games : games.filter(g => g.genre === currentGenreFilter);
+        if(filtered.length === 0) {
+            container.innerHTML = `<div class="game-card">⛔ Нет игр в этом жанре. Добавь первую через профиль!</div>`;
+            return;
+        }
+        container.innerHTML = filtered.map(game => `
+            <div class="game-card" data-game-id="${game.id}">
+                <div class="game-title">🏴‍☠️ ${escapeHtml(game.name)}</div>
+                <div class="game-genre"><i class="fas fa-tag"></i> ${escapeHtml(game.genre)}</div>
+                <div class="game-desc">${escapeHtml(game.description)}</div>
+                <div style="font-size:0.7rem; margin: 5px 0;">👤 ${escapeHtml(game.author)} | ⬇️ ${game.downloadsCount || 0}</div>
+                <button class="btn-download download-game-btn" data-id="${game.id}" data-url="${game.apkUrl}"><i class="fas fa-download"></i> Скачать APK</button>
+            </div>
+        `).join('');
+        // добавим обработчики на кнопки скачивания
+        document.querySelectorAll('.download-game-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const gameId = btn.getAttribute('data-id');
+                const gameUrl = btn.getAttribute('data-url');
+                const gameObj = games.find(g => g.id === gameId);
+                if(gameObj) {
+                    // увеличить счетчик скачиваний (эстетика)
+                    gameObj.downloadsCount = (gameObj.downloadsCount || 0) + 1;
+                    saveGames();
+                    // добавить в "скачанные игры", если еще нет
+                    if(!downloadedGames.includes(gameId)) {
+                        downloadedGames.push(gameId);
+                        saveDownloaded();
+                        alert(`Игра "${gameObj.name}" добавлена в раздел "Скачанные игры"! Ссылка: ${gameUrl} (демо-ссылка)`);
+                    } else {
+                        alert(`Вы уже скачивали "${gameObj.name}". Ссылка для повторного скачивания: ${gameUrl}`);
+                    }
+                    renderGamesByGenre(); // обновить счетчик на карточке
+                    renderDownloadedPage(); // обновить список скачанных
+                    updateUserStats(); // (не обязательно)
+                } else {
+                    alert("Ошибка: игра не найдена");
+                }
+            });
+        });
+    }
+
+    // отрисовка скачанных игр
+    function renderDownloadedPage() {
+        const container = document.getElementById('downloadedList');
+        if(!container) return;
+        const downloadedItems = downloadedGames.map(id => games.find(g => g.id === id)).filter(g => g);
+        if(downloadedItems.length === 0) {
+            container.innerHTML = `<li style="justify-content:center;">⚓ Сундук пуст. Скачай пару игр из раздела ИГРЫ!</li>`;
+            return;
+        }
+        container.innerHTML = downloadedItems.map(game => `
+            <li>
+                <span><i class="fas fa-dice-d6"></i> <strong>${escapeHtml(game.name)}</strong> (${game.genre}) — ${game.description.substring(0, 50)}</span>
+                <a href="${game.apkUrl}" target="_blank" style="background:#a52222; padding:0.3rem 0.8rem; border-radius: 20px; color:white; text-decoration:none; font-size:0.75rem;">Скачать снова</a>
+            </li>
+        `).join('');
+    }
+
+    // добавление новой игры (от Captain_Redbeard)
+    function addNewGame(name, genre, description, apkUrl) {
+        if(!name.trim() || !apkUrl.trim()) {
+            alert("Название и ссылка APK обязательны!");
+            return false;
+        }
+        const newId = 'g' + Date.now() + Math.random().toString(36).substr(2, 6);
+        const newGame = {
+            id: newId,
+            name: name.trim(),
+            genre: genre,
+            description: description.trim() || "Без описания",
+            apkUrl: apkUrl.trim(),
+            author: "Captain_Redbeard",
+            date: new Date().toISOString().slice(0,10),
+            downloadsCount: 0
+        };
+        games.push(newGame);
+        saveGames();
+        alert(`Игра "${name}" добавлена в каталог!`);
+        // обновить интерфейс
+        renderGenreButtons();
+        if(currentGenreFilter === "Все" || currentGenreFilter === genre) renderGamesByGenre();
+        else renderGamesByGenre(); // все равно перерендер
+        updateUserStats();
+        return true;
+    }
+
+    function addNewPost(title, content) {
+        if(!title.trim() || !content.trim()) {
+            alert("Заголовок и текст поста обязательны!");
+            return false;
+        }
+        const newPost = {
+            id: 'p' + Date.now() + Math.random().toString(36).substr(2, 5),
+            title: title.trim(),
+            content: content.trim(),
+            author: "Captain_Redbeard",
+            date: new Date().toISOString().slice(0,10)
+        };
+        posts.unshift(newPost);
+        savePosts();
+        alert("Пост опубликован в ленте!");
+        renderPosts();
+        updateUserStats();
+        return true;
+    }
+
+    // Навигация
+    function setActivePage(pageId) {
+        document.querySelectorAll('.page').forEach(page => page.classList.remove('active-page'));
+        document.getElementById(pageId + 'Page').classList.add('active-page');
+        // обновить активные ссылки
+        document.querySelectorAll('.nav-links a').forEach(link => link.classList.remove('active'));
+        const activeLink = Array.from(document.querySelectorAll('.nav-links a')).find(a => a.getAttribute('data-page') === pageId);
+        if(activeLink) activeLink.classList.add('active');
+        // дополнительный рендер при переключении
+        if(pageId === 'posts') renderPosts();
+        if(pageId === 'games') { renderGenreButtons(); renderGamesByGenre(); }
+        if(pageId === 'downloaded') renderDownloadedPage();
+        if(pageId === 'profile') updateUserStats();
+    }
+
+    // вспомогательная функция эскейпа
+    function escapeHtml(str) {
+        if(!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if(m === '&') return '&amp;';
+            if(m === '<') return '&lt;';
+            if(m === '>') return '&gt;';
+            return m;
+        }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
+            return c;
+        });
+    }
+
+    // инициализация событий
+    document.addEventListener('DOMContentLoaded', () => {
+        loadData();
+        renderPosts();
+        renderGenreButtons();
+        renderGamesByGenre();
+        renderDownloadedPage();
+
+        // навигация
+        const navLinks = document.querySelectorAll('.nav-links a');
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const page = link.getAttribute('data-page');
+                if(page) setActivePage(page);
+            });
+        });
+
+        // кнопки публикации из профиля
+        const publishGameBtn = document.getElementById('publishGameBtn');
+        if(publishGameBtn) {
+            publishGameBtn.addEventListener('click', () => {
+                const name = document.getElementById('gameName').value;
+                const genre = document.getElementById('gameGenreSelect').value;
+                const desc = document.getElementById('gameDesc').value;
+                const apkUrl = document.getElementById('apkLink').value;
+                if(addNewGame(name, genre, desc, apkUrl)) {
+                    document.getElementById('gameName').value = '';
+                    document.getElementById('gameDesc').value = '';
+                    document.getElementById('apkLink').value = '';
+                }
+            });
+        }
+        const publishPostBtn = document.getElementById('publishPostBtn');
+        if(publishPostBtn) {
+            publishPostBtn.addEventListener('click', () => {
+                const title = document.getElementById('postTitle').value;
+                const content = document.getElementById('postContent').value;
+                if(addNewPost(title, content)) {
+                    document.getElementById('postTitle').value = '';
+                    document.getElementById('postContent').value = '';
+                }
+            });
+        }
+    });
+</script>
+</body>
+</html>
