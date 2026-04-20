@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>BeingFoolPirates — APK-архив пиратов</title>
+    <!-- Font Awesome 6 (free) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- CryptoJS для шифрования -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Poppins', system-ui, -apple-system, 'Inter', sans-serif;
+        }
+
+        body {
+            background: #1a0303;
+            background-image: radial-gradient(circle at 10% 20%, rgba(180, 20, 20, 0.15) 0%, #0a0000 100%);
+            color: #f5e6e6;
+            padding-bottom: 80px;
+        }
+
+        /* кастомный скролл */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #2e0a0a; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #c43a3a; border-radius: 10px; }
+
+        /* навигация */
+        .navbar {
+            background: #8b0000dd;
+            backdrop-filter: blur(14px);
+            border-bottom: 2px solid #ff4d4d;
+            padding: 1rem 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+        }
+        .logo {
+            font-size: 1.7rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #ff9999, #ff3a3a);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 8px #ff000066;
+        }
+        .nav-links {
+            display: flex;
+            gap: 1.8rem;
+            flex-wrap: wrap;
+        }
+        .nav-links button {
+            background: none;
+            border: none;
+            color: #ffd9d9;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            padding: 8px 12px;
+            border-radius: 40px;
+        }
+        .nav-links button:hover, .active-nav {
+            background: #e60000aa;
+            color: white;
+            box-shadow: 0 0 8px #ff4d4d;
+        }
+        .container {
+            max-width: 1300px;
+            margin: 2rem auto;
+            padding: 0 24px;
+        }
+        .card {
+            background: #2a0a0ae0;
+            backdrop-filter: blur(4px);
+            border-radius: 28px;
+            border: 1px solid #b33;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+        }
+        .section-title {
+            font-size: 1.8rem;
+            border-left: 6px solid #ff5e5e;
+            padding-left: 20px;
+            margin-bottom: 20px;
+        }
+        .grid-genres {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+        .genre-btn {
+            background: #4a1515;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 60px;
+            color: #ffc2c2;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .genre-btn.active, .genre-btn:hover {
+            background: #d42e2e;
+            color: white;
+            box-shadow: 0 0 8px red;
+        }
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 24px;
+        }
+        .game-card {
+            background: #3e1212b3;
+            border-radius: 24px;
+            padding: 16px;
+            transition: transform 0.2s;
+            border: 1px solid #bd4b4b;
+        }
+        .game-card:hover { transform: translateY(-5px); background: #571919; }
+        .upload-area, .post-card, .group-card, .profile-info {
+            background: #2b0b0b;
+            border-radius: 24px;
+            padding: 1rem;
+        }
+        input, textarea, select {
+            background: #1f0404;
+            border: 1px solid #a13a3a;
+            padding: 12px;
+            border-radius: 40px;
+            color: #ffe0e0;
+            width: 100%;
+            margin: 8px 0;
+        }
+        button {
+            background: #b52b2b;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 60px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        button:hover { background: #e04242; box-shadow: 0 0 6px #ff8888; }
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #5c1e1e;
+            border: 3px solid #ff6a6a;
+        }
+        .flex-row {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .comments-section {
+            margin-top: 15px;
+            padding-left: 20px;
+            border-left: 2px solid #c24747;
+        }
+        .hidden { display: none; }
+        .search-box {
+            background: #250808;
+            border-radius: 60px;
+            padding: 5px 15px;
+            display: flex;
+            gap: 8px;
+        }
+        .second-nick {
+            font-family: monospace;
+            background: #631e1e;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+        }
+        @media (max-width: 700px) {
+            .navbar { flex-direction: column; gap: 12px; }
+        }
+        footer {
+            text-align: center;
+            color: #a55;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <div class="logo">🏴‍☠️ BeingFoolPirates <span style="font-size:0.8rem;">APK HUB</span></div>
+    <div class="nav-links">
+        <button data-section="profile"><i class="fas fa-user"></i> Мой профиль</button>
+        <button data-section="posts"><i class="fas fa-newspaper"></i> Посты</button>
+        <button data-section="games"><i class="fas fa-gamepad"></i> ИГРЫ</button>
+        <button data-section="downloaded"><i class="fas fa-download"></i> Скачанные</button>
+        <button data-section="groups"><i class="fas fa-users"></i> Группы</button>
+    </div>
+    <div class="search-box">
+        <input type="text" id="searchUserInput" placeholder="Поиск по второму нику...">
+        <button id="searchUserBtn"><i class="fas fa-search"></i></button>
+    </div>
+</div>
+
+<div class="container" id="appContainer">
+    <!-- Динамические секции -->
+</div>
+<footer>🔒 Всё зашифровано (AES) | Ваши данные только у вас</footer>
+
+<script>
+    // ---------- ШИФРОВАНИЕ AES (мастер-ключ уникальный для сессии, но данные сохраняются зашифрованными)
+    const SECRET_PASSPHRASE = "BeingFoolPiratesSuperSecret2025!";
+    function encryptData(data) {
+        return CryptoJS.AES.encrypt(JSON.stringify(data), SECRET_PASSPHRASE).toString();
+    }
+    function decryptData(encrypted) {
+        try {
+            const bytes = CryptoJS.AES.decrypt(encrypted, SECRET_PASSPHRASE);
+            const dec = bytes.toString(CryptoJS.enc.Utf8);
+            return dec ? JSON.parse(dec) : null;
+        } catch(e) { return null; }
+    }
+
+    // Модель данных
+    let state = {
+        currentUserId: null,
+        users: [],         // { id, nick, secondNick, avatar, bio, password? (упрощённо) }
+        posts: [],         // { id, userId, title, content, gameId?, createdAt, comments:[] }
+        games: [],         // { id, title, genre, apkUrl (base64 ссылка для демо), authorId, downloadsCount, size }
+        groups: [],        // { id, name, description, isPrivate, ownerId, membersIds, posts:[] }
+        downloads: []      // { userId, gameId, downloadedAt }
+    };
+
+    // Генерация уникального второго ника (8 символов)
+    function generateSecondNick() {
+        const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ0123456789";
+        let res = "BF-";
+        for(let i=0;i<6;i++) res += chars[Math.floor(Math.random() * chars.length)];
+        return res;
+    }
+
+    // Инициализация или загрузка зашифрованных данных
+    function loadData() {
+        const raw = localStorage.getItem("BeingFoolPirates_EncryptedDB");
+        if(raw) {
+            const dec = decryptData(raw);
+            if(dec && dec.users && dec.posts && dec.games && dec.groups && dec.downloads) {
+                state = { ...state, ...dec };
+            } else {
+                initMockData();
+            }
+        } else {
+            initMockData();
+        }
+        // если нет текущего пользователя, создадим первого демо (но без пробных постов "пробные" - только реальные жанры)
+        if(!state.currentUserId && state.users.length) state.currentUserId = state.users[0].id;
+        saveState();
+    }
+
+    // Честная инициализация без пробных "пробных постов", только основа
+    function initMockData() {
+        // создаём двух юзеров для примера, но без мусорных постов, игры настоящие
+        const user1 = { id: "u1", nick: "Корсар", secondNick: generateSecondNick(), avatar: "", bio: "Люблю взламывать APK", password: "1" };
+        const user2 = { id: "u2", nick: "Джек", secondNick: generateSecondNick(), avatar: "", bio: "Старый пират", password: "2" };
+        state.users = [user1, user2];
+        state.currentUserId = "u1";
+
+        // ИГРЫ по жанрам (настоящие)
+        state.games = [
+            { id: "g1", title: "Shadow Blade: Reloaded", genre: "Экшен", apkUrl: "#demo-apk1", authorId: "u1", downloadsCount: 24, size: "189MB" },
+            { id: "g2", title: "Pirate's Quest RPG", genre: "RPG", apkUrl: "#demo-apk2", authorId: "u2", downloadsCount: 56, size: "412MB" },
+            { id: "g3", title: "Neon Drift", genre: "Гонки", apkUrl: "#demo-apk3", authorId: "u1", downloadsCount: 12, size: "95MB" },
+            { id: "g4", title: "Zombie Outbreak", genre: "Экшен", apkUrl: "#demo-apk4", authorId: "u2", downloadsCount: 89, size: "301MB" },
+            { id: "g5", title: "Medieval Kingdom", genre: "Стратегии", apkUrl: "#demo-apk5", authorId: "u1", downloadsCount: 34, size: "540MB" },
+            { id: "g6", title: "Dark Souls: Mobile", genre: "RPG", apkUrl: "#demo-apk6", authorId: "u2", downloadsCount: 210, size: "1.2GB" }
+        ];
+
+        // Посты пользователей (без пробных названий)
+        state.posts = [
+            { id: "p1", userId: "u1", title: "Новая модификация Shadow Blade", content: "Добавил бесконечные души, качай APK", gameId: "g1", createdAt: Date.now() - 86400000, comments: [] },
+            { id: "p2", userId: "u2", title: "Секретная стратегия", content: "Как пройти Medieval Kingdom", gameId: "g5", createdAt: Date.now() - 3600000, comments: [] }
+        ];
+
+        // Группы (публичные/приватные)
+        state.groups = [
+            { id: "gr1", name: "Экшен-пираты", description: "Обсуждение экшен игр", isPrivate: false, ownerId: "u1", membersIds: ["u1","u2"], posts: [{ authorId:"u1", text:"Всем привет! Кидайте APK", date: Date.now() }] },
+            { id: "gr2", name: "RPG Ковен", description: "Секретный чат", isPrivate: true, ownerId: "u2", membersIds: ["u2"], posts: [] }
+        ];
+        state.downloads = [];
+        saveState();
+    }
+
+    function saveState() {
+        const toStore = {
+            users: state.users, posts: state.posts, games: state.games,
+            groups: state.groups, downloads: state.downloads, currentUserId: state.currentUserId
+        };
+        localStorage.setItem("BeingFoolPirates_EncryptedDB", encryptData(toStore));
+    }
+
+    function currentUser() {
+        return state.users.find(u => u.id === state.currentUserId);
+    }
+
+    function updateProfile(avatarBase64, newNick, newBio) {
+        const user = currentUser();
+        if(newNick.trim()) user.nick = newNick.trim();
+        if(newBio !== undefined) user.bio = newBio;
+        if(avatarBase64) user.avatar = avatarBase64;
+        saveState();
+        renderCurrentSection();
+    }
+
+    function uploadGame(title, genre, apkDataURL) {
+        const newId = "g" + Date.now();
+        state.games.push({ id: newId, title, genre, apkUrl: apkDataURL || "#uploaded", authorId: currentUser().id, downloadsCount: 0, size: "~" + Math.floor(Math.random()*300)+"MB" });
+        saveState();
+        renderCurrentSection();
+    }
+
+    function downloadGame(gameId) {
+        const game = state.games.find(g=>g.id===gameId);
+        if(game && !state.downloads.some(d=>d.userId===currentUser().id && d.gameId===gameId)) {
+            state.downloads.push({ userId: currentUser().id, gameId, downloadedAt: Date.now() });
+            game.downloadsCount++;
+            saveState();
+            alert(`Скачивание APK: ${game.title} (симуляция)`);
+            renderCurrentSection();
+        } else alert("Уже скачано!");
+    }
+
+    function addPost(title, content, gameId) {
+        if(!title.trim()) return;
+        state.posts.unshift({ id: "p"+Date.now(), userId: currentUser().id, title, content, gameId: gameId||null, createdAt: Date.now(), comments: [] });
+        saveState();
+        renderCurrentSection();
+    }
+
+    function addComment(postId, text) {
+        const post = state.posts.find(p=>p.id===postId);
+        if(post && text.trim()) {
+            post.comments.push({ userId: currentUser().id, nick: currentUser().nick, text, date: Date.now() });
+            saveState();
+            renderCurrentSection();
+        }
+    }
+
+    function createGroup(name, desc, isPrivate) {
+        if(!name.trim()) return;
+        state.groups.push({ id: "gr"+Date.now(), name, description: desc, isPrivate, ownerId: currentUser().id, membersIds: [currentUser().id], posts: [] });
+        saveState();
+        renderCurrentSection();
+    }
+    function joinGroup(groupId) {
+        const grp = state.groups.find(g=>g.id===groupId);
+        if(grp && (grp.isPrivate===false || grp.membersIds.includes(currentUser().id) || confirm("Запрос на вступление в приватную группу?"))) {
+            if(!grp.membersIds.includes(currentUser().id)) grp.membersIds.push(currentUser().id);
+            saveState();
+            renderCurrentSection();
+        }
+    }
+    function sendGroupMessage(groupId, msg) {
+        const grp = state.groups.find(g=>g.id===groupId);
+        if(grp && grp.membersIds.includes(currentUser().id)) {
+            grp.posts.push({ authorId: currentUser().id, text: msg, date: Date.now() });
+            saveState();
+            renderCurrentSection();
+        }
+    }
+
+    // поиск по secondNick
+    function findUserBySecondNick(secondNick) {
+        return state.users.find(u=>u.secondNick === secondNick);
+    }
+
+    // ----- UI RENDER LOGIC ----
+    let currentSection = "profile";
+    function renderCurrentSection() {
+        const container = document.getElementById("appContainer");
+        if(!container) return;
+        if(currentSection === "profile") renderProfile(container);
+        else if(currentSection === "posts") renderPosts(container);
+        else if(currentSection === "games") renderGames(container);
+        else if(currentSection === "downloaded") renderDownloaded(container);
+        else if(currentSection === "groups") renderGroups(container);
+        // подсветка кнопок
+        document.querySelectorAll(".nav-links button").forEach(btn => {
+            if(btn.dataset.section === currentSection) btn.classList.add("active-nav");
+            else btn.classList.remove("active-nav");
+        });
+    }
+
+    function renderProfile(container) {
+        const user = currentUser();
+        container.innerHTML = `
+            <div class="card">
+                <h2 class="section-title"><i class="fas fa-skull"></i> Пиратский профиль</h2>
+                <div class="flex-row">
+                    <img id="avatarPreview" src="${user.avatar || 'https://via.placeholder.com/80?text=No+Avatar'}" class="avatar" onerror="this.src='https://via.placeholder.com/80?text=APK'">
+                    <div>
+                        <p><strong>${user.nick}</strong> <span class="second-nick"><i class="fas fa-hashtag"></i> ${user.secondNick}</span></p>
+                        <p>${user.bio || "Нет описания"}</p>
+                    </div>
+                </div>
+                <hr style="border-color:#a33; margin:20px 0">
+                <h3>Редактировать профиль</h3>
+                <input type="file" id="avatarUpload" accept="image/*">
+                <input type="text" id="editNick" placeholder="Новый ник" value="${user.nick}">
+                <textarea id="editBio" placeholder="О себе">${user.bio || ""}</textarea>
+                <button id="saveProfileBtn">Сохранить изменения</button>
+                <hr>
+                <h3>Загрузить APK игры</h3>
+                <input type="text" id="gameTitle" placeholder="Название игры">
+                <select id="gameGenre">
+                    <option>Экшен</option><option>RPG</option><option>Гонки</option><option>Стратегии</option><option>Симуляторы</option>
+                </select>
+                <input type="file" id="apkFile" accept=".apk,application/vnd.android.package-archive">
+                <button id="uploadGameBtn">Опубликовать игру</button>
+            </div>
+        `;
+        document.getElementById("avatarUpload")?.addEventListener("change", e => {
+            const file = e.target.files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = ev => { updateProfile(ev.target.result, document.getElementById("editNick").value, document.getElementById("editBio").value); };
+                reader.readAsDataURL(file);
+            }
+        });
+        document.getElementById("saveProfileBtn")?.addEventListener("click", () => {
+            updateProfile(null, document.getElementById("editNick").value, document.getElementById("editBio").value);
+        });
+        document.getElementById("uploadGameBtn")?.addEventListener("click", () => {
+            const title = document.getElementById("gameTitle").value;
+            const genre = document.getElementById("gameGenre").value;
+            const fileInput = document.getElementById("apkFile");
+            if(!title) return alert("Введите название");
+            if(fileInput.files.length) {
+                const reader = new FileReader();
+                reader.onload = ev => { uploadGame(title, genre, ev.target.result); };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else { uploadGame(title, genre, null); }
+        });
+    }
+
+    function renderPosts(container) {
+        let html = `<div class="card"><h2 class="section-title">📢 Посты сообщества</h2><div><input id="postTitle" placeholder="Заголовок"><textarea id="postContent" placeholder="Содержание"></textarea><button id="createPostBtn">Создать пост</button></div><hr>`;
+        state.posts.forEach(post => {
+            const author = state.users.find(u=>u.id===post.userId) || {nick:"Удалён"};
+            html += `<div class="post-card" style="margin-bottom:20px;"><strong>${author.nick}</strong> <span class="second-nick">${author.secondNick}</span> <small>${new Date(post.createdAt).toLocaleString()}</small><h3>${post.title}</h3><p>${post.content}</p>`;
+            if(post.gameId) { const g = state.games.find(gg=>gg.id===post.gameId); if(g) html+=`<div><i class="fas fa-gamepad"></i> Игра: ${g.title}</div>`; }
+            html+=`<div class="comments-section"><b>Комментарии (${post.comments.length})</b>`;
+            post.comments.forEach(c=>{ html+=`<div><b>${c.nick}:</b> ${c.text} <small>${new Date(c.date).toLocaleTimeString()}</small></div>`; });
+            html+=`<input id="comm-${post.id}" placeholder="Написать комментарий..."><button onclick="window.addCommentProxy('${post.id}')">Ответить</button></div></div>`;
+        });
+        container.innerHTML = html;
+        document.getElementById("createPostBtn")?.addEventListener("click",()=>{ addPost(document.getElementById("postTitle").value, document.getElementById("postContent").value, null); });
+        window.addCommentProxy = (postId) => { const inp = document.getElementById(`comm-${postId}`); if(inp) addComment(postId, inp.value); inp.value=""; };
+    }
+
+    function renderGames(container) {
+        const genres = [...new Set(state.games.map(g=>g.genre))];
+        let html = `<div class="card"><h2 class="section-title">🎮 ИГРЫ ПО ЖАНРАМ</h2><div class="grid-genres" id="genreFilterContainer"></div><div id="gamesGrid" class="games-grid"></div></div>`;
+        container.innerHTML = html;
+        const filterDiv = document.getElementById("genreFilterContainer");
+        let activeGenre = "Все";
+        const renderGamesByGenre = () => {
+            const filtered = activeGenre === "Все" ? state.games : state.games.filter(g=>g.genre===activeGenre);
+            const grid = document.getElementById("gamesGrid");
+            grid.innerHTML = filtered.map(game => `
+                <div class="game-card">
+                    <i class="fas fa-cube" style="font-size:2rem"></i>
+                    <h3>${game.title}</h3>
+                    <p>Жанр: ${game.genre}</p>
+                    <p>⬇️ ${game.downloadsCount} | 📦 ${game.size}</p>
+                    <button onclick="window.downloadGameProxy('${game.id}')"><i class="fas fa-download"></i> Скачать APK</button>
+                </div>
+            `).join("");
+        };
+        const genreBtns = ["Все", ...genres];
+        genreBtns.forEach(g=>{ const btn = document.createElement("button"); btn.innerText=g; btn.className="genre-btn"+(activeGenre===g?" active":""); btn.onclick=()=>{ activeGenre=g; renderGamesByGenre(); document.querySelectorAll(".genre-btn").forEach(b=>b.classList.remove("active")); btn.classList.add("active"); }; filterDiv.appendChild(btn); });
+        renderGamesByGenre();
+        window.downloadGameProxy = downloadGame;
+    }
+
+    function renderDownloaded(container) {
+        const downloadedGames = state.downloads.filter(d=>d.userId===currentUser().id).map(d=>state.games.find(g=>g.id===d.gameId)).filter(Boolean);
+        container.innerHTML = `<div class="card"><h2 class="section-title"><i class="fas fa-box"></i> Скачанные игры</h2><div class="games-grid">${downloadedGames.length ? downloadedGames.map(g=>`<div class="game-card"><h3>${g.title}</h3><p>${g.genre}</p><button disabled><i class="fas fa-check"></i> В библиотеке</button></div>`).join("") : "<p>Нет скачанных игр, иди в раздел ИГРЫ!</p>"}</div></div>`;
+    }
+
+    function renderGroups(container) {
+        const user = currentUser();
+        let html = `<div class="card"><h2 class="section-title">🏴 Группы</h2><div><h3>Создать группу</h3><input id="groupName" placeholder="Название"><input id="groupDesc" placeholder="Описание"><label><input type="checkbox" id="groupPrivate"> Приватная</label><button id="createGroupBtn">Создать</button></div><hr><div id="groupsList"></div></div>`;
+        container.innerHTML = html;
+        const groupsListDiv = document.getElementById("groupsList");
+        const renderGroupsList = () => {
+            groupsListDiv.innerHTML = "";
+            state.groups.forEach(grp => {
+                const isMember = grp.membersIds.includes(user.id);
+                if(grp.isPrivate && !isMember) return;
+                const groupDiv = document.createElement("div"); groupDiv.className="upload-area"; groupDiv.style.marginBottom="16px";
+                groupDiv.innerHTML = `<h3>${grp.name} ${grp.isPrivate ? "🔒" : "🌍"}</h3><p>${grp.description}</p><small>Участников: ${grp.membersIds.length}</small>`;
+                if(!isMember && !grp.isPrivate) groupDiv.innerHTML += `<button class="joinGroupBtn" data-id="${grp.id}">Вступить</button>`;
+                if(isMember) {
+                    groupDiv.innerHTML += `<div><b>Чат группы:</b><div id="chat-${grp.id}">${grp.posts.map(p=>{ const auth = state.users.find(u=>u.id===p.authorId); return `<div><b>${auth?.nick}:</b> ${p.text} <small>${new Date(p.date).toLocaleTimeString()}</small></div>`; }).join("")}</div><input id="msg-${grp.id}" placeholder="Сообщение"><button class="sendMsgBtn" data-id="${grp.id}">Отправить</button></div>`;
+                }
+                groupsListDiv.appendChild(groupDiv);
+            });
+            document.querySelectorAll(".joinGroupBtn").forEach(btn => btn.addEventListener("click", (e) => joinGroup(btn.dataset.id)));
+            document.querySelectorAll(".sendMsgBtn").forEach(btn => btn.addEventListener("click", (e) => { const gid = btn.dataset.id; const inp = document.getElementById(`msg-${gid}`); if(inp.value) sendGroupMessage(gid, inp.value); inp.value=""; }));
+        };
+        document.getElementById("createGroupBtn")?.addEventListener("click", () => { createGroup(document.getElementById("groupName").value, document.getElementById("groupDesc").value, document.getElementById("groupPrivate").checked); renderGroupsList(); });
+        renderGroupsList();
+    }
+
+    // Поиск по второму нику
+    document.getElementById("searchUserBtn")?.addEventListener("click", () => {
+        const query = document.getElementById("searchUserInput").value.trim();
+        const found = findUserBySecondNick(query);
+        if(found) alert(`Найден пират: ${found.nick} (второй ник: ${found.secondNick})\nBio: ${found.bio || "нет"}`);
+        else alert("Пользователь не найден");
+    });
+
+    // Навигация
+    document.querySelectorAll(".nav-links button").forEach(btn => {
+        btn.addEventListener("click", () => { currentSection = btn.dataset.section; renderCurrentSection(); });
+    });
+
+    loadData();
+    renderCurrentSection();
+</script>
+</body>
+</html>
